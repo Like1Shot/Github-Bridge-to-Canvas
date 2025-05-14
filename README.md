@@ -1,4 +1,4 @@
-# CMake to Canvas Grade Submission System
+# Bridge to Canvas
 
 This repository contains a template for a course assignment that automatically grades student submissions and sends the results to Canvas using GitHub Actions.
 
