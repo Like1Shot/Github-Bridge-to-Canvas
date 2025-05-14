@@ -1,0 +1,51 @@
+name: Grade Submission
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install CMake and GTest
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libgtest-dev
+    
+    - name: Build and Run Tests
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_tests > test_results.txt
+    
+    - name: Submit Grade to Canvas
+      env:
+        CANVAS_URL: ${{ secrets.CANVAS_URL }}
+        CANVAS_TOKEN: ${{ secrets.CANVAS_TOKEN }}
+        COURSE_ID: ${{ secrets.COURSE_ID }}
+        ASSIGNMENT_ID: ${{ secrets.ASSIGNMENT_ID }}
+        STUDENT_ID: ${{ secrets.STUDENT_ID }}
+      run: |
+        python canvas_grader.py \
+          --canvas-url "$CANVAS_URL" \
+          --api-token "$CANVAS_TOKEN" \
+          --course-id "$COURSE_ID" \
+          --assignment-id "$ASSIGNMENT_ID" \
+          --student-id "$STUDENT_ID" 
